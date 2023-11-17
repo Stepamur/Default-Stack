@@ -22,7 +22,7 @@
 
 data_type* last_elem_ptr(stack_strct* ptr)
 {
-    return ptr->stack + ptr->stack_size;
+    return ptr->stack + ptr->quantity;
 };
 
 data_type* first_elem_ptr(stack_strct* ptr) 
@@ -32,10 +32,11 @@ data_type* first_elem_ptr(stack_strct* ptr)
 
 stack_strct StackInit()
 {
-    data_type* ptr = (data_type*)calloc(DEF_STACK_SIZE + 10, sizeof (data_type));
+    //stack_strct* ptr = (stack_strct*)calloc(sizeof(data_type*) + sizeof(size_t) + sizeof(int), sizeof (char));
+    data_type* ptr_stck = (data_type*)calloc(DEF_STACK_SIZE + 10, sizeof (data_type));
     size_t size = DEF_STACK_SIZE;
-    assert (ptr != NULL);
-    stack_strct stack = {size, 0, ptr};
+    assert (ptr_stck != NULL);
+    stack_strct stack = {size, 0, ptr_stck};
     StackVrf(&stack);
     return stack;
 }
@@ -50,14 +51,18 @@ void StackVrf (stack_strct* ptr)
         assert (new_ptr != NULL);
         ptr->stack = new_ptr;
         ptr->stack_size = ptr->stack_size * 2; 
+        //printf("Stack size was multiplied by 2, now it is %lu \n", ptr->stack_size);
     }
-
-    if (ptr->stack_size >= ptr->quantity / 2)
+    else
     {
-        data_type* new_ptr = (data_type*)realloc(ptr->stack, (ptr->stack_size / 2) * sizeof(data_type));
-        assert (new_ptr != NULL);
-        ptr->stack = new_ptr;
-        ptr->stack_size = ptr->stack_size / 2;
+        if (ptr->stack_size >= ptr->quantity / 2)
+        {
+            data_type* new_ptr = (data_type*)realloc(ptr->stack, (ptr->stack_size / 2) * sizeof(data_type));
+            assert (new_ptr != NULL);
+            ptr->stack = new_ptr;
+            ptr->stack_size = ptr->stack_size / 2;
+            //printf("Stack size was divided by 2, now it is %lu \n", ptr->stack_size);
+        }
     }
 
 }
@@ -71,25 +76,38 @@ void StackDtor (stack_strct* ptr)
         *(i) = 65535;
     }
 
-    ptr->stack_size = 1;
-    ptr->quantity = 0;
 
-    free (ptr);
+    //
+    //printf ("StackDtor runned towards freeing \n");
+    //
 
-    ptr = NULL;
+    free (ptr->stack);
+
+    //
+    //printf ("StackDtor successfully runned through freeing \n");
+    //
+
+    ptr->stack = NULL;
 
 }
 
 void StackPush (stack_strct* ptr, data_type number)
 {
     StackVrf (ptr);
-    *(last_elem_ptr(ptr) + 1) = number;
+    *(last_elem_ptr(ptr)) = number;
     ptr->quantity += 1;
+
+
+    //printf("%d was added into stack \n", number);
+    //StackPrint(ptr);
+
 }
 
 data_type StackPop (stack_strct* ptr)
 {
-    data_type popped_number = *(last_elem_ptr(ptr));
+    data_type popped_number = *(last_elem_ptr(ptr) - 1);
+    //printf ("%d was popped in StackPop \n", popped_number);
+    *(last_elem_ptr(ptr) - 1) = 0;
     ptr->quantity -= 1;
     StackVrf (ptr);
     return (popped_number);
@@ -101,8 +119,8 @@ void StackPrint (stack_strct* ptr)
     {
         printf ("%d \n", *i);
     }
-    printf ("%lud", *size_ptr);
-    printf ("%d", *quan_ptr);
+    printf ("Size: %lu ", ptr->stack_size);
+    printf ("Quantity: %d \n \n", ptr->quantity);
 
 }
 

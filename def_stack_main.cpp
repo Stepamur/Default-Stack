@@ -12,7 +12,7 @@ int main ()
     StackPush (&pointer, 5);
     int popped = StackPop (&pointer);
 
-    printf ("%d was popped \n", popped);
+    printf ("%d was popped \n \n", popped);
 
     StackPrint (&pointer);
 
